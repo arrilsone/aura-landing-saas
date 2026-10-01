@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AURA — the energy layer of modern growth</title>
+<meta name="description" content="A plug-in growth team for subscription SaaS at any stage: acquisition, trial-to-paid conversion, retention and expansion, run as weekly experiments.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --space:#070A1C;
+    --space-2:#0E1233;
+    --ink:#ECEAFF;
+    --muted:#A9A8D8;
+    --flare:#FF7A3D;
+    --flare-ink:#1C0A02;
+    --nebula:#8B7CFF;
+    --line:rgba(236,234,255,.16);
+    --display:"Unbounded", "Arial Black", system-ui, sans-serif;
+    --body:"Hanken Grotesk", "Helvetica Neue", system-ui, sans-serif;
+    color-scheme: dark;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  /* The brand is deliberately dark in both viewer themes */
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --space:#070A1C; --ink:#ECEAFF; } }
+  :root[data-theme="dark"]{ --space:#070A1C; --ink:#ECEAFF; }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px); background:var(--space); }
+  @media (prefers-reduced-motion: no-preference){ html{ scroll-behavior:smooth; } }
+  body{
+    margin:0; background:var(--space); color:var(--ink);
+    font-family:var(--body); font-size:1.0625rem; line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  img,svg{ max-width:100%; }
+  a{ color:inherit; }
+  :focus-visible{ outline:2px solid var(--flare); outline-offset:3px; border-radius:4px; }
+
+  #space{ position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0;
+    background: radial-gradient(ellipse at 70% 40%, #1b1f5c 0%, var(--space) 60%); }
+  .page{ position:relative; z-index:1; }
+
+  .wrap{ width:100%; max-width:1200px; margin:0 auto; padding:0 clamp(1.25rem, 4vw, 3rem); }
+
+  /* nav */
+  .nav{ position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+    background:rgba(7,10,28,.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line); }
+  .nav .wrap{ display:flex; align-items:center; justify-content:space-between; gap:1.5rem; height:68px; }
+  .brand{ display:flex; align-items:center; gap:.6rem; text-decoration:none; font-family:var(--display); font-weight:500; font-size:.95rem; letter-spacing:-.01em; }
+  .nav ul{ display:flex; gap:1.75rem; list-style:none; margin:0; padding:0; }
+  .nav ul a{ text-decoration:none; color:var(--muted); font-size:.95rem; }
+  .nav ul a:hover{ color:var(--ink); }
+  @media (max-width: 820px){ .nav ul{ display:none; } }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 1.4rem;
+    border-radius:999px; font-weight:600; font-size:1rem; text-decoration:none; transition:transform .2s ease, background .2s ease; }
+  .btn-primary{ background:var(--flare); color:var(--flare-ink); }
+  .btn-primary:hover{ background:#ff935f; }
+  .btn-ghost{ border:1px solid var(--line); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .btn-sm{ min-height:44px; padding:0 1.1rem; font-size:.95rem; }
+
+  /* hero */
+  .hero{ min-height:calc(100svh - 68px); display:flex; align-items:center; padding:5rem 0 6rem; }
+  .hero h1{ font-family:var(--display); font-weight:700; font-size:clamp(2.4rem, 6.2vw, 5.2rem);
+    line-height:1.0; letter-spacing:-.035em; margin:0 0 1.75rem; max-width:11ch; }
+  .hero p{ font-size:clamp(1.1rem, 1.6vw, 1.3rem); color:var(--muted); max-width:34ch; margin:0 0 2.5rem; }
+  .hero .actions{ display:flex; gap:.9rem; flex-wrap:wrap; }
+  .scroll-hint{ margin-top:4.5rem; display:flex; align-items:center; gap:.75rem; color:var(--muted); font-size:.9rem; }
+  .scroll-hint span{ width:1px; height:42px; background:linear-gradient(var(--flare), transparent); }
+
+  section{ padding:clamp(5rem, 11vw, 9rem) 0; }
+  h2{ font-family:var(--display); font-weight:500; font-size:clamp(1.8rem, 3.6vw, 3rem); line-height:1.08; letter-spacing:-.025em; margin:0 0 1.25rem; max-width:18ch; }
+  .lede{ color:var(--muted); max-width:52ch; margin:0 0 3.5rem; font-size:1.125rem; }
+
+  /* flight path */
+  .path{ display:grid; grid-template-columns:repeat(3, 1fr); gap:clamp(1.5rem, 3vw, 3rem); position:relative; }
+  .path::before{ content:""; position:absolute; top:7px; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, var(--nebula), var(--flare)); opacity:.7; }
+  .stage{ padding-top:2.25rem; position:relative; }
+  .stage::before{ content:""; position:absolute; top:0; left:0; width:15px; height:15px; border-radius:50%;
+    background:var(--space); border:2px solid var(--flare); }
+  .stage:nth-child(1)::before{ border-color:var(--nebula); }
+  .stage:nth-child(2)::before{ border-color:#c47cc8; }
+  .stage h3{ font-family:var(--display); font-weight:500; font-size:1.6rem; margin:0 0 .25rem; letter-spacing:-.02em; }
+  .stage .when{ color:var(--flare); font-weight:600; font-size:.95rem; margin:0 0 1rem; }
+  .stage p{ color:var(--muted); margin:0 0 1.1rem; }
+  .stage ul{ margin:0; padding:0; list-style:none; display:grid; gap:.45rem; }
+  .stage li{ padding-left:1.1rem; position:relative; }
+  .stage li::before{ content:""; position:absolute; left:0; top:.68em; width:5px; height:5px; border-radius:50%; background:var(--ink); opacity:.6; }
+  @media (max-width: 820px){
+    .path{ grid-template-columns:1fr; gap:2.5rem; padding-left:1.75rem; }
+    .path::before{ top:0; bottom:0; left:7px; right:auto; width:1px; height:auto; background:linear-gradient(var(--nebula), var(--flare)); }
+    .stage{ padding-top:0; }
+    .stage::before{ left:-1.75rem; top:.4rem; }
+  }
+
+  /* services */
+  .services{ border-top:1px solid var(--line); }
+  .service{ display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:2rem; padding:1.9rem 0; border-bottom:1px solid var(--line); }
+  .service h3{ font-family:var(--display); font-weight:500; font-size:1.2rem; margin:0; letter-spacing:-.015em; }
+  .service p{ margin:0; color:var(--muted); max-width:56ch; }
+  @media (max-width: 680px){ .service{ grid-template-columns:1fr; gap:.6rem; } }
+
+  /* how we work */
+  .cadence{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:clamp(2rem, 5vw, 5rem); align-items:start; }
+  .weekly{ background:rgba(14,18,51,.72); border:1px solid var(--line); border-radius:22px; padding:clamp(1.5rem, 3vw, 2.5rem);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .weekly h3{ font-family:var(--display); font-weight:500; font-size:1.1rem; margin:0 0 1.25rem; }
+  .weekly dl{ margin:0; display:grid; gap:1.1rem; }
+  .weekly dt{ font-weight:600; }
+  .weekly dd{ margin:.15rem 0 0; color:var(--muted); }
+  @media (max-width: 820px){ .cadence{ grid-template-columns:1fr; } }
+
+  /* results */
+  .results{ display:grid; gap:0; border-top:1px solid var(--line); }
+  .result{ display:grid; grid-template-columns:minmax(0,4fr) minmax(0,3fr) minmax(0,5fr); gap:1.5rem; padding:1.6rem 0; border-bottom:1px solid var(--line); align-items:baseline; }
+  .result .who{ font-family:var(--display); font-weight:500; }
+  .result .num{ font-family:var(--display); font-weight:700; font-size:1.6rem; color:var(--flare); letter-spacing:-.02em; }
+  .result p{ margin:0; color:var(--muted); }
+  @media (max-width: 680px){ .result{ grid-template-columns:1fr; gap:.35rem; } }
+
+  /* cta */
+  .cta{ text-align:left; padding-bottom:6rem; }
+  .cta h2{ font-size:clamp(2.2rem, 6vw, 4.8rem); font-weight:700; max-width:14ch; letter-spacing:-.035em; line-height:1.0; margin-bottom:1.5rem; }
+  .cta p{ color:var(--muted); max-width:46ch; margin:0 0 2.25rem; font-size:1.15rem; }
+
+
+  /* stats */
+  .stats{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:clamp(1.25rem, 3vw, 2.5rem); border-top:1px solid var(--line); padding-top:2rem; margin-bottom:3rem; }
+  .stat .num{ display:block; font-family:var(--display); font-weight:700; font-size:clamp(2rem, 4vw, 3.2rem); letter-spacing:-.03em; line-height:1.05; color:var(--ink); }
+  .stat p{ margin:.5rem 0 0; color:var(--muted); max-width:22ch; }
+  @media (max-width: 820px){ .stats{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  .team{ color:var(--muted); max-width:62ch; margin:0; }
+  .path-5{ grid-template-columns:repeat(5, minmax(0,1fr)); }
+  .path-5 .stage h3{ font-size:1.2rem; }
+  @media (max-width: 1080px) and (min-width: 821px){ .path-5{ grid-template-columns:repeat(3, minmax(0,1fr)); row-gap:3rem; } }
+  @media (max-width: 820px){ .path-5{ grid-template-columns:1fr; } }
+  .engage{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:clamp(1rem, 2vw, 1.5rem); }
+  .engage .weekly p.kind{ color:var(--flare); font-weight:600; margin:0 0 .35rem; font-size:.95rem; }
+  @media (max-width: 900px){ .engage{ grid-template-columns:1fr; } }
+  .result ul{ margin:0; padding:0; list-style:none; color:var(--muted); display:grid; gap:.3rem; }
+  .aside{ margin-top:2rem; color:var(--muted); }
+
+  footer{ border-top:1px solid var(--line); padding:2rem 0 2.5rem; color:var(--muted); font-size:.92rem; background:rgba(7,10,28,.6); }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+  footer a{ color:var(--muted); }
+  footer a:hover{ color:var(--ink); }
+</style>
+</head>
+<body>
+<canvas id="space" aria-hidden="true"></canvas>
+
+<div class="page">
+  <nav class="nav" aria-label="Main">
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="AURA, home">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+          <circle cx="13" cy="13" r="5" fill="#8B7CFF"/>
+          <ellipse cx="13" cy="13" rx="11.5" ry="4.5" transform="rotate(-24 13 13)" stroke="#FF7A3D" stroke-width="1.6"/>
+        </svg>
+        AURA
+      </a>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#engage">Engagement</a></li>
+        <li><a href="#results">Cases</a></li>
+      </ul>
+      <a class="btn btn-primary btn-sm" href="https://t.me/artsssss" target="_blank" rel="noopener">Book a call</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="wrap">
+        <h1>Escape velocity for subscription SaaS.</h1>
+        <p>The energy layer of modern growth. Senior operators who have owned the numbers in-house, now running acquisition, monetization and retention for subscription products.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://t.me/artsssss" target="_blank" rel="noopener">Book a free growth audit</a>
+          <a class="btn btn-ghost" href="https://t.me/artsssss" target="_blank" rel="noopener">Message us on Telegram</a>
+        </div>
+        <div class="scroll-hint" aria-hidden="true"><span></span>Scroll to launch</div>
+      </div>
+    </header>
+
+    <section id="about">
+      <div class="wrap">
+        <h2>Designed by consultants, built by traders.</h2>
+        <p class="lede">Senior in-house growth experience inside venture-backed companies. We've owned the metrics we're now coming to fix.</p>
+        <div class="stats">
+          <div class="stat"><span class="num">15+</span><p>Years leading growth in-house</p></div>
+          <div class="stat"><span class="num">$50M+</span><p>Paid spend managed in-house</p></div>
+          <div class="stat"><span class="num">2.75</span><p>Average LTV/CAC lift in engagements</p></div>
+          <div class="stat"><span class="num">20+</span><p>Companies scaled past key milestones</p></div>
+        </div>
+        <p class="team">Our team averages 10+ years scaling venture-backed companies across logistics, delivery, dating, fintech, payments and health-tech. With 10+ growth projects delivered, we bring operator-level expertise in performance acquisition, monetization, retention and scalable growth systems.</p>
+      </div>
+    </section>
+
+    <section id="approach">
+      <div class="wrap">
+        <h2>How we think about growth</h2>
+        <p class="lede">Your product and growth partner. Four rules we don't break, whatever the size of your MRR.</p>
+        <div class="services">
+          <div class="service"><h3>Test before scale</h3><p>A disciplined experiment cadence. We pick 2 to 3 channels, run real tests and kill what fails fast. No spray-and-pray budgets.</p></div>
+          <div class="service"><h3>Economics led</h3><p>We start with unit economics, not media plans. If the LTV/CAC math doesn't work, we tell you before you spend a dollar.</p></div>
+          <div class="service"><h3>Accelerating growth</h3><p>We scale what proves traction. Fast iteration across creatives, funnels and channels turns early signals into repeatable growth.</p></div>
+          <div class="service"><h3>Aligned on outcomes</h3><p>A base fee covers the team. The upside comes from a share of the incremental revenue we create, measured against a cohort baseline.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="wrap">
+        <h2>A 5-stage operating system for paid growth</h2>
+        <p class="lede">Stage 1 decides whether scaling makes sense. Stages 2 to 5 are where we operate the engine.</p>
+        <div class="path path-5">
+          <article class="stage">
+            <h3>Growth Foundation</h3>
+            <p class="when">Stage 1</p>
+            <ul><li>Unit economics audit</li><li>ICP and messaging</li><li>Funnel teardown</li><li>Go / No-Go decision</li></ul>
+          </article>
+          <article class="stage">
+            <h3>Acquisition Engine</h3>
+            <p class="when">Stage 2</p>
+            <ul><li>2 to 3 channels, not 7</li><li>Creative factory, 5 to 8 angles per cycle</li><li>Landing page and offer A/B tests</li><li>Daily media buying with an experiment log</li></ul>
+          </article>
+          <article class="stage">
+            <h3>Data Infrastructure</h3>
+            <p class="when">Stage 3</p>
+            <ul><li>Event tracking plan</li><li>Experiment measurement standards</li><li>Cohort dashboards (D1, D7, D30)</li><li>LTV, payback and forecast model</li></ul>
+          </article>
+          <article class="stage">
+            <h3>Product-Growth Loop</h3>
+            <p class="when">Stage 4</p>
+            <ul><li>Onboarding and time-to-value</li><li>Email, push, in-app and referral loops</li><li>Pricing, trial length and upsell tests</li><li>10 to 15 customer interviews</li></ul>
+          </article>
+          <article class="stage">
+            <h3>Scale Strategy</h3>
+            <p class="when">Stage 5</p>
+            <ul><li>Stop/go rules and creative refresh</li><li>Hiring plan for in-house roles</li><li>Geo expansion and localized pricing</li><li>Investor-ready metrics pack</li></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap cadence">
+        <div>
+          <h2>Decide if scaling makes sense before spending.</h2>
+          <p class="lede" style="margin-bottom:0">Stage 1 takes 2 to 3 weeks with a clear scope. We audit CAC by channel, ARPU, contribution margin, LTV and cohort payback, map who actually pays, and trace the full path from impression to paid retention. It ends with a written recommendation.</p>
+        </div>
+        <div class="weekly">
+          <h3>You get</h3>
+          <dl>
+            <div><dt>Growth audit deck</dt><dd>15 to 25 slides on your economics, funnel and tracking.</dd></div>
+            <div><dt>North Star Metric and KPI tree</dt><dd>One number the whole team rallies around.</dd></div>
+            <div><dt>Prioritized experiment backlog</dt><dd>4 to 6 weeks of tests, with 3 to 5 messaging angles ready to run.</dd></div>
+            <div><dt>Live dashboard</dt><dd>A CEO view with a daily refresh.</dd></div>
+            <div><dt>Written Go / No-Go</dt><dd>A straight answer on whether paid scale is viable.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="engage">
+      <div class="wrap">
+        <h2>Three ways to work with AURA</h2>
+        <p class="lede">Start small with a diagnostic or bring us in to run the whole engine.</p>
+        <div class="engage">
+          <div class="weekly">
+            <p class="kind">Diagnostic</p>
+            <h3>Growth Diagnostic</h3>
+            <dl>
+              <div><dt>When</dt><dd>You're unsure if paid scale is viable.</dd></div>
+              <div><dt>Scope</dt><dd>Stage 1. Audit and Go / No-Go.</dd></div>
+              <div><dt>Commitment</dt><dd>2 to 3 weeks</dd></div>
+              <div><dt>Model</dt><dd>Fixed-scope engagement</dd></div>
+            </dl>
+          </div>
+          <div class="weekly">
+            <p class="kind">Partnership</p>
+            <h3>Growth Partnership</h3>
+            <dl>
+              <div><dt>When</dt><dd>You have signal and want to scale without burning cash.</dd></div>
+              <div><dt>Scope</dt><dd>Stages 1 to 4. The full operating engine.</dd></div>
+              <div><dt>Commitment</dt><dd>6 months minimum</dd></div>
+              <div><dt>Model</dt><dd>Base fee plus a share of incremental revenue</dd></div>
+            </dl>
+          </div>
+          <div class="weekly">
+            <p class="kind">Sprint</p>
+            <h3>Scale Sprint</h3>
+            <dl>
+              <div><dt>When</dt><dd>You're growing and need new geos, channels or fundraising prep.</dd></div>
+              <div><dt>Scope</dt><dd>Stage 5 plus selective ops support.</dd></div>
+              <div><dt>Commitment</dt><dd>3 months</dd></div>
+              <div><dt>Model</dt><dd>Base fee plus an outcome bonus</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="model">
+      <div class="wrap">
+        <h2>Why performance-based, and how it actually works</h2>
+        <p class="lede">You pay a base fee plus a percentage of incremental revenue.</p>
+        <div class="services">
+          <div class="service"><h3>Base fee</h3><p>Covers our team: strategy lead, media buyer, creative producer and analyst. Senior operators every week, not junior account managers.</p></div>
+          <div class="service"><h3>Incremental, not total</h3><p>Our share is calculated only on revenue above your cohort baseline, so we earn on growth we create, not on what you'd make anyway.</p></div>
+          <div class="service"><h3>Cap and floor</h3><p>The variable share is capped, so there are no surprise bills, and floored, so the work keeps fair value if numbers stall for reasons outside our control. Both sides are protected.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="wrap">
+        <h2>Cases</h2>
+        <p class="lede">A few of the products we've helped leave the atmosphere.</p>
+        <div class="results">
+          <div class="result"><span class="who">Worksection<br><small style="color:var(--muted);font-family:var(--body);font-weight:400">Product growth</small></span><span class="num">+22% trial-to-paid</span>
+            <ul><li>Improved activation rate by 41%</li><li>Lowered customer acquisition cost by 19%</li><li>Built a scalable growth framework</li></ul></div>
+          <div class="result"><span class="who">Flirtu<br><small style="color:var(--muted);font-family:var(--body);font-weight:400">Growth and scale</small></span><span class="num">+42% ROAS</span>
+            <ul><li>Expanded into 3 new markets</li><li>Reduced CAC by 28%</li><li>Built a repeatable acquisition engine</li></ul></div>
+          <div class="result"><span class="who">Culinara<br><small style="color:var(--muted);font-family:var(--body);font-weight:400">Investment readiness</small></span><span class="num">Investment-ready</span>
+            <ul><li>Investment-ready business model</li><li>Clear CAC/LTV framework</li><li>Prioritized go-to-market strategy</li><li>Reduced investment uncertainty</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="cta">
+      <div class="wrap">
+        <h2>Start with a free growth audit call.</h2>
+        <p>60 minutes. We look at your funnel, ask the hard questions and leave you with 3 things to change. Zero commitment.</p>
+        <a class="btn btn-primary" href="https://t.me/artsssss" target="_blank" rel="noopener">Book a free growth audit</a>
+        <p class="aside">Investor or accelerator? <a href="https://t.me/artsssss" target="_blank" rel="noopener">Set up a partner call</a> and we'll walk you through portfolio benefits and reference clients.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 AURA. The energy layer of modern growth.</span>
+      <a href="https://t.me/artsssss" target="_blank" rel="noopener">Telegram: @artsssss</a>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  if (!window.THREE) return;
+  var canvas = document.getElementById('space');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); }
+  catch (e) { return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x070A1C);
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 300);
+  camera.position.set(0, 0, 9);
+
+  function dotTexture(){
+    var c = document.createElement('canvas'); c.width = c.height = 64;
+    var g = c.getContext('2d');
+    var gr = g.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,1)');
+    gr.addColorStop(0.25,'rgba(255,255,255,0.85)');
+    gr.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0,0,64,64);
+    return new THREE.CanvasTexture(c);
+  }
+  var dot = dotTexture();
+
+  // Starfield
+  var starCount = 3500, sp = new Float32Array(starCount*3), sc = new Float32Array(starCount*3);
+  var palette = [new THREE.Color(0xECEAFF), new THREE.Color(0xA9A8FF), new THREE.Color(0xFFD2B8)];
+  for (var i=0;i<starCount;i++){
+    var r = 30 + Math.random()*90, th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    sp[i*3] = r*Math.sin(ph)*Math.cos(th); sp[i*3+1] = r*Math.sin(ph)*Math.sin(th); sp[i*3+2] = r*Math.cos(ph);
+    var col = palette[Math.random() < .75 ? 0 : (Math.random() < .6 ? 1 : 2)];
+    sc[i*3]=col.r; sc[i*3+1]=col.g; sc[i*3+2]=col.b;
+  }
+  var starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sp,3));
+  starGeo.setAttribute('color', new THREE.BufferAttribute(sc,3));
+  var stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ size: 0.55, map: dot, vertexColors: true, transparent: true, depthWrite: false, opacity: .9 }));
+  scene.add(stars);
+
+  // Planet system
+  var system = new THREE.Group();
+  scene.add(system);
+
+  var planetMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: 'varying vec3 vN; varying vec3 vP; void main(){ vN = normalize(normalMatrix*normal); vP = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: [
+      'uniform float uTime; varying vec3 vN; varying vec3 vP;',
+      'void main(){',
+      ' vec3 n = normalize(vN);',
+      ' float b = sin(vP.y*7.0 + sin(vP.x*2.6 + uTime*0.15)*1.6 + sin(vP.z*3.1)*0.8)*0.5+0.5;',
+      ' vec3 deep = vec3(0.07,0.08,0.30); vec3 vio = vec3(0.45,0.38,0.98); vec3 hot = vec3(1.0,0.48,0.24);',
+      ' vec3 col = mix(deep, vio, b*0.55);',
+      ' col = mix(col, hot, smoothstep(0.90,1.0,b)*0.45);',
+      ' vec3 L = normalize(vec3(-0.65,0.45,0.6));',
+      ' float d = max(dot(n,L),0.0);',
+      ' col *= 0.12 + d*1.15;',
+      ' float fr = pow(1.0 - max(dot(n, vec3(0.0,0.0,1.0)),0.0), 3.0);',
+      ' col += vec3(0.55,0.48,1.0)*fr*0.9;',
+      ' gl_FragColor = vec4(col,1.0);',
+      '}'
+    ].join('\n')
+  });
+  var planet = new THREE.Mesh(new THREE.SphereGeometry(1.25, 96, 96), planetMat);
+  system.add(planet);
+
+  var atmo = new THREE.Mesh(new THREE.SphereGeometry(1.5, 64, 64), new THREE.ShaderMaterial({
+    vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vN; void main(){ float i = pow(0.68 - dot(normalize(vN), vec3(0.0,0.0,1.0)), 2.6); gl_FragColor = vec4(0.55,0.45,1.0,1.0)*i; }',
+    side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  }));
+  system.add(atmo);
+
+  // Particle ring
+  var ringN = 2600, rp = new Float32Array(ringN*3), rc = new Float32Array(ringN*3);
+  var cA = new THREE.Color(0x8B7CFF), cB = new THREE.Color(0xFF7A3D), tmp = new THREE.Color();
+  for (var j=0;j<ringN;j++){
+    var a = Math.random()*Math.PI*2, rr = 1.9 + Math.pow(Math.random(),1.6)*1.3;
+    rp[j*3] = Math.cos(a)*rr; rp[j*3+1] = (Math.random()-.5)*0.05; rp[j*3+2] = Math.sin(a)*rr;
+    tmp.copy(cA).lerp(cB, (rr-1.9)/1.3);
+    rc[j*3]=tmp.r; rc[j*3+1]=tmp.g; rc[j*3+2]=tmp.b;
+  }
+  var ringGeo = new THREE.BufferGeometry();
+  ringGeo.setAttribute('position', new THREE.BufferAttribute(rp,3));
+  ringGeo.setAttribute('color', new THREE.BufferAttribute(rc,3));
+  var ring = new THREE.Points(ringGeo, new THREE.PointsMaterial({ size: 0.05, map: dot, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  var ringHolder = new THREE.Group();
+  ringHolder.rotation.set(1.22, 0, 0.32);
+  ringHolder.add(ring);
+  system.add(ringHolder);
+
+  // Growth trajectory: a spiral leaving the planet, drawn as you scroll
+  var DROP = 11, TRAJ_N = 600, tp = new Float32Array(TRAJ_N*3);
+  function trajPoint(t, out){
+    var ang = t*Math.PI*5.2 + 0.6, rad = 1.65 + t*2.6;
+    out.set(Math.cos(ang)*rad, -t*DROP, Math.sin(ang)*rad);
+    return out;
+  }
+  var v = new THREE.Vector3();
+  for (var k=0;k<TRAJ_N;k++){ trajPoint(k/(TRAJ_N-1), v); tp[k*3]=v.x; tp[k*3+1]=v.y; tp[k*3+2]=v.z; }
+  var trajGeo = new THREE.BufferGeometry();
+  trajGeo.setAttribute('position', new THREE.BufferAttribute(tp,3));
+  var traj = new THREE.Line(trajGeo, new THREE.LineBasicMaterial({ color: 0xFF7A3D, transparent: true, opacity: 0.85 }));
+  system.add(traj);
+
+  var probe = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: 0xFFB088, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  probe.scale.set(0.42, 0.42, 1);
+  system.add(probe);
+  var probeCore = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: 0xFFFFFF, transparent: true, depthWrite: false }));
+  probeCore.scale.set(0.12, 0.12, 1);
+  system.add(probeCore);
+
+  // Layout & interaction
+  var baseX = 2.6, baseY = 0, baseScale = 1, isNarrow = false;
+  function resize(){
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+    isNarrow = w < 820;
+    baseX = isNarrow ? 0.4 : Math.min(3.2, 1.2 + camera.aspect*1.0);
+    baseY = isNarrow ? 1.9 : 0.1;
+    baseScale = isNarrow ? 0.62 : 1;
+    traj.material.opacity = isNarrow ? 0.5 : 0.85;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var target = 0, prog = 0, mx = 0, my = 0;
+  function onScroll(){
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    target = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); prog = target;
+  window.addEventListener('pointermove', function(e){
+    mx = (e.clientX / window.innerWidth) * 2 - 1;
+    my = (e.clientY / window.innerHeight) * 2 - 1;
+  }, { passive: true });
+
+  var clock = new THREE.Clock();
+  function frame(){
+    var dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+    prog += (target - prog) * (reduced ? 1 : Math.min(1, dt*4));
+
+    planetMat.uniforms.uTime.value = t;
+    if (!reduced){
+      planet.rotation.y += dt*0.08;
+      ring.rotation.y += dt*0.05;
+      stars.rotation.y += dt*0.004;
+      camera.position.x += (mx*0.45 - camera.position.x) * 0.04;
+      camera.position.y += (-my*0.3 - camera.position.y) * 0.04;
+    }
+    camera.lookAt(0, 0, 0);
+
+    // The system rises as you scroll; the probe stays near eye level, tracing the curve behind it.
+    var drawn = 0.04 + prog*0.96;
+    system.scale.setScalar(baseScale);
+    system.position.set(baseX, baseY + drawn*DROP*baseScale - (isNarrow ? 1.4 : 0)*prog, 0);
+    system.rotation.y = prog * 0.9;
+    trajGeo.setDrawRange(0, Math.max(2, Math.floor(drawn*TRAJ_N)));
+    trajPoint(drawn, v);
+    probe.position.copy(v); probeCore.position.copy(v);
+    var pulse = reduced ? 1 : 1 + Math.sin(t*3)*0.12;
+    probe.scale.set(0.42*pulse, 0.42*pulse, 1);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
