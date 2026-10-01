@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AURA OS — the energy layer of modern growth</title>
+<meta name="description" content="AURA is a growth partner for subscription SaaS: acquisition, monetization and retention run by senior operators.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#127A78; --desk-2:#0E6564;
+    --face:#C3C3C3; --light:#FFFFFF; --shade:#808080; --dark:#2B2B2B; --hi:#DFDFDF;
+    --title-a:#3A2F9E; --title-b:#8B7CFF; --title-off:#8A8A9A;
+    --select:#3A2F9E; --flare:#FF7A3D; --ink:#111111; --paper:#FFFFFF;
+    --ui:Tahoma, Verdana, "Segoe UI", "DejaVu Sans", sans-serif;
+    --pixel:"Pixelify Sans", "Courier New", monospace;
+    --mono:"VT323", "Courier New", monospace;
+    --tb:42px;
+    color-scheme: light;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    background:var(--desk);
+  }
+  /* The retro look is fixed in both viewer themes */
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --desk:#127A78; } }
+  :root[data-theme="dark"]{ --desk:#127A78; }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+  body{ background:var(--desk); font-family:var(--ui); font-size:13px; color:var(--ink); overflow:hidden; -webkit-tap-highlight-color:transparent; }
+  button{ font:inherit; color:inherit; }
+  :focus-visible{ outline:1px dotted #000; outline-offset:-4px; }
+
+  .screen{ height:100%; display:flex; flex-direction:column; }
+  .desktop{ position:relative; flex:1; overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 46%, rgba(255,255,255,.06) 0 18%, transparent 18.2%),
+      linear-gradient(var(--desk), var(--desk-2)); }
+  .wallpaper{ position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); width:min(46vw, 360px); opacity:.22; pointer-events:none; }
+
+  /* bevels */
+  .out{ background:var(--face); border:1px solid; border-color:var(--light) var(--dark) var(--dark) var(--light); box-shadow:inset -1px -1px var(--shade), inset 1px 1px var(--hi); }
+  .in{ border:1px solid; border-color:var(--shade) var(--light) var(--light) var(--shade); box-shadow:inset 1px 1px var(--dark), inset -1px -1px var(--hi); }
+  .btn{ background:var(--face); border:1px solid; border-color:var(--light) var(--dark) var(--dark) var(--light); box-shadow:inset -1px -1px var(--shade), inset 1px 1px var(--hi);
+    min-height:30px; padding:4px 14px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; color:var(--ink); }
+  .btn:active, .btn.pressed{ border-color:var(--dark) var(--light) var(--light) var(--dark); box-shadow:inset 1px 1px var(--shade), inset -1px -1px var(--hi); }
+  .btn-cta{ font-weight:700; min-height:36px; padding:6px 16px; }
+  .btn-cta .dot{ width:10px; height:10px; background:var(--flare); border:1px solid #7a2e0b; }
+
+  /* desktop icons */
+  .icons{ position:absolute; inset:10px; display:grid; grid-auto-flow:column; grid-template-rows:repeat(auto-fill, 92px); grid-auto-columns:96px; gap:4px 6px; align-content:start; pointer-events:none; }
+  .icon{ text-decoration:none; pointer-events:auto; background:none; border:0; padding:4px 2px; width:96px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; color:#fff; }
+  .icon svg{ width:36px; height:36px; image-rendering:pixelated; }
+  .icon .il{ font-size:12px; line-height:1.25; text-align:center; padding:1px 3px; text-shadow:1px 1px 0 rgba(0,0,0,.6); max-width:92px; word-wrap:break-word; }
+  .icon.sel .il{ background:var(--select); text-shadow:none; outline:1px dotted #fff; }
+  .icon.sel svg{ filter:brightness(.75) sepia(1) hue-rotate(200deg) saturate(3); }
+  .folder-body .icon{ color:var(--ink); }
+  .folder-body .icon .il{ text-shadow:none; }
+  .folder-body .icon.sel .il{ color:#fff; }
+
+  /* windows */
+  .win{ position:absolute; display:flex; flex-direction:column; min-width:260px; max-height:calc(100% - 20px); padding:3px; }
+  .win[hidden]{ display:none; }
+  .titlebar{ display:flex; align-items:center; gap:6px; height:24px; padding:0 3px 0 5px; color:#fff; font-weight:700; background:linear-gradient(90deg, var(--title-off), #B6B6C2); cursor:default; user-select:none; touch-action:none; flex-shrink:0; }
+  .win.active .titlebar{ background:linear-gradient(90deg, var(--title-a), var(--title-b)); }
+  .titlebar svg{ width:16px; height:16px; flex-shrink:0; }
+  .titlebar .tt{ flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; }
+  .ctl{ width:22px; height:20px; padding:0; display:grid; place-items:center; background:var(--face); border:1px solid; border-color:var(--light) var(--dark) var(--dark) var(--light); box-shadow:inset -1px -1px var(--shade), inset 1px 1px var(--hi); cursor:pointer; }
+  .ctl:active{ border-color:var(--dark) var(--light) var(--light) var(--dark); }
+  .ctl svg{ width:10px; height:10px; }
+  .ctl + .ctl{ margin-left:0; }
+  .ctl[data-a="close"]{ margin-left:3px; }
+  .menubar{ display:flex; gap:14px; padding:4px 6px; font-size:12px; flex-shrink:0; }
+  .menubar span:first-letter{ text-decoration:underline; }
+  .addr{ display:flex; align-items:center; gap:6px; padding:2px 6px 5px; font-size:12px; flex-shrink:0; }
+  .addr .field{ flex:1; background:var(--paper); padding:3px 6px; font-family:var(--mono); font-size:16px; line-height:1; }
+  .body{ background:var(--paper); overflow:auto; flex:1; min-height:0; }
+  .doc{ padding:20px 22px 24px; font-size:14px; line-height:1.55; max-width:none; }
+  .doc > *{ max-width:62ch; }
+  .doc h1, .doc h2{ font-family:var(--pixel); font-weight:700; line-height:1.1; margin:0 0 12px; letter-spacing:.01em; }
+  .doc h1{ font-size:44px; color:var(--title-a); }
+  .doc h2{ font-size:24px; }
+  .doc h3{ font-size:14px; margin:18px 0 4px; }
+  .doc p{ margin:0 0 12px; }
+  .doc ul{ margin:0 0 12px; padding-left:20px; }
+  .doc li{ margin:3px 0; }
+  .doc .tag{ font-family:var(--mono); font-size:22px; color:#444; margin-bottom:14px; }
+  .doc .actions{ display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px; }
+  .doc .hint{ color:#555; font-size:12px; margin-top:16px; }
+  .doc a{ color:var(--title-a); }
+  .kv{ display:grid; grid-template-columns:max-content 1fr; gap:6px 16px; margin:0 0 12px; }
+  .kv dt{ font-weight:700; } .kv dd{ margin:0; }
+  .big{ font-family:var(--pixel); font-weight:700; font-size:30px; color:var(--flare); line-height:1.1; margin:4px 0 10px; }
+  .sys{ display:flex; gap:20px; align-items:flex-start; }
+  .sys .stats{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px 18px; margin:6px 0 14px; }
+  .sys .stats b{ display:block; font-family:var(--pixel); font-size:26px; color:var(--title-a); }
+  .sys .stats span{ font-size:12px; color:#444; }
+  .warn{ display:flex; gap:12px; align-items:flex-start; }
+  .warn svg{ width:36px; height:36px; flex-shrink:0; }
+  .folder-body{ padding:10px; display:grid; grid-template-columns:repeat(auto-fill, 96px); gap:6px; align-content:start; }
+  .status{ display:flex; gap:4px; padding-top:3px; font-size:12px; flex-shrink:0; }
+  .status span{ padding:2px 6px; flex:1; }
+  .win.max{ left:0 !important; top:0 !important; width:100% !important; height:100% !important; max-height:none; }
+
+  /* taskbar */
+  .taskbar{ height:calc(var(--tb)); display:flex; align-items:center; gap:4px; padding:3px 3px; flex-shrink:0; position:relative; z-index:9000; border-width:2px 0 0 0; border-style:solid; border-color:var(--light); background:var(--face); box-shadow:inset 0 1px var(--hi); }
+  .start{ font-weight:700; height:34px; padding:0 10px 0 6px; flex-shrink:0; }
+  .start svg{ width:20px; height:20px; }
+  .tasks{ flex:1; display:flex; gap:4px; min-width:0; overflow:hidden; }
+  .task{ height:34px; min-width:0; max-width:180px; flex:1 1 140px; justify-content:flex-start; padding:0 8px; font-size:12px; }
+  .task span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task svg{ width:16px; height:16px; flex-shrink:0; }
+  .task.pressed{ font-weight:700; background-image:repeating-conic-gradient(var(--face) 0 25%, #E8E8E8 0 50%); background-size:2px 2px; }
+  .tray{ height:34px; display:flex; align-items:center; gap:8px; padding:0 10px; flex-shrink:0; font-size:12px; }
+  .tray a{ display:grid; place-items:center; width:24px; height:24px; }
+  .tray svg{ width:18px; height:18px; }
+
+  /* start menu */
+  .startmenu{ position:absolute; left:3px; bottom:calc(var(--tb) + env(safe-area-inset-bottom,0px) - 2px); z-index:9500; display:flex; min-width:250px; padding:2px; }
+  .startmenu[hidden]{ display:none; }
+  .startmenu .rail{ width:30px; background:linear-gradient(0deg, var(--title-a), var(--title-b)); color:#fff; display:flex; align-items:flex-end; justify-content:center; padding-bottom:10px; }
+  .startmenu .rail span{ writing-mode:vertical-rl; transform:rotate(180deg); font-family:var(--pixel); font-size:20px; font-weight:700; letter-spacing:.04em; }
+  .startmenu ul{ list-style:none; margin:0; padding:2px 0; flex:1; }
+  .startmenu li button, .startmenu li a{ width:100%; display:flex; align-items:center; gap:10px; padding:7px 14px 7px 8px; background:none; border:0; text-align:left; cursor:pointer; text-decoration:none; color:var(--ink); min-height:40px; }
+  .startmenu li svg{ width:28px; height:28px; flex-shrink:0; }
+  .startmenu li button:hover, .startmenu li a:hover, .startmenu li button:focus-visible, .startmenu li a:focus-visible{ background:var(--select); color:#fff; outline:none; }
+  .startmenu hr{ border:0; border-top:1px solid var(--shade); border-bottom:1px solid var(--light); margin:3px 4px; }
+
+  /* boot & shutdown */
+  .overlay{ position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; background:#08091A; color:#ECEAFF; text-align:center; padding:24px; }
+  .overlay[hidden]{ display:none; }
+  .overlay h1{ font-family:var(--pixel); font-size:clamp(48px, 10vw, 92px); margin:0; letter-spacing:.06em; }
+  .overlay p{ font-family:var(--mono); font-size:24px; margin:0; color:#A9A8D8; }
+  .bar{ width:min(320px, 80vw); height:18px; padding:2px; border:2px solid #A9A8D8; }
+  .bar i{ display:block; height:100%; width:0; background:repeating-linear-gradient(90deg, var(--title-b) 0 12px, transparent 12px 15px); transition:width 1.4s steps(18); }
+  .overlay.go .bar i{ width:100%; }
+  .shutdown{ background:#000; }
+  .shutdown h2{ font-family:var(--pixel); color:var(--flare); font-size:clamp(26px, 5vw, 44px); max-width:18ch; line-height:1.15; margin:0; }
+  .shutdown .btn{ margin-top:8px; }
+
+  @media (max-width: 700px){
+    .icons{ grid-auto-flow:row; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); grid-template-rows:none; grid-auto-rows:96px; grid-auto-columns:auto; }
+    .icon{ width:auto; }
+    .win, .win.max{ left:6px !important; right:6px; top:6px !important; width:auto !important; height:calc(100% - 12px) !important; max-height:none; }
+    .titlebar{ height:32px; }
+    .ctl{ width:30px; height:26px; }
+    .ctl[data-a="max"]{ display:none; }
+    .doc{ padding:16px; }
+    .doc h1{ font-size:38px; }
+    .sys{ flex-direction:column; }
+    .tray .clock{ display:none; }
+    .task{ max-width:120px; }
+  }
+  @media (prefers-reduced-motion: reduce){ .bar i{ transition:none; } }
+</style>
+</head>
+<body>
+<div class="screen">
+  <main class="desktop" id="desktop" aria-label="AURA OS desktop">
+    <svg class="wallpaper" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="40" fill="#fff"/>
+      <ellipse cx="100" cy="100" rx="92" ry="30" transform="rotate(-22 100 100)" fill="none" stroke="#fff" stroke-width="8"/>
+      <text x="100" y="196" text-anchor="middle" font-family="Pixelify Sans, monospace" font-weight="700" font-size="34" fill="#fff" letter-spacing="6">AURA</text>
+    </svg>
+    <div class="icons" id="icons"></div>
+  </main>
+
+  <nav class="startmenu out" id="startmenu" hidden aria-label="Start menu">
+    <div class="rail"><span>AURA OS</span></div>
+    <ul id="startlist"></ul>
+  </nav>
+
+  <footer class="taskbar" style="padding-bottom:calc(3px + env(safe-area-inset-bottom,0px)); height:calc(var(--tb) + env(safe-area-inset-bottom,0px));">
+    <button class="btn start" id="startbtn" aria-haspopup="true" aria-expanded="false" aria-controls="startmenu"><span id="startlogo"></span>Start</button>
+    <div class="tasks" id="tasks"></div>
+    <div class="tray in">
+      <a id="traytg" target="_blank" rel="noopener" aria-label="Message AURA on Telegram"></a>
+      <span class="clock" id="clock" aria-label="Current time"></span>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="boot" role="status" aria-live="polite">
+  <h1>AURA</h1>
+  <p>The energy layer of modern growth</p>
+  <div class="bar"><i></i></div>
+  <p style="font-size:18px">Starting AURA OS. Click to skip.</p>
+</div>
+
+<div class="overlay shutdown" id="shutdown" hidden>
+  <h2>It's now safe to scale your MRR.</h2>
+  <p>But first, talk to us.</p>
+  <a class="btn btn-cta" id="shutcta" target="_blank" rel="noopener"><span class="dot"></span>Book a free growth audit</a>
+  <button class="btn" id="restart" style="margin-top:4px">Restart AURA OS</button>
+</div>
+
+<script>
+(function(){
+  var TG = 'https://t.me/artsssss';
+  var cta = function(label){ return '<a class="btn btn-cta" href="'+TG+'" target="_blank" rel="noopener"><span class="dot"></span>'+label+'</a>'; };
+  var ctaRow = function(){ return '<div class="actions">'+cta('Book a free growth audit')+'<a class="btn" href="'+TG+'" target="_blank" rel="noopener">Message us on Telegram</a></div>'; };
+
+  // ---------- pixel icons (original drawings) ----------
+  var ICONS = {
+    folder: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M2 7h11l3 3h14v18H2z" fill="#C99A1E"/><path d="M2 11h28v17H2z" fill="#F4CC4A"/><path d="M2 11h28v1H2z" fill="#FFF0A8"/><path d="M2 28h28v1H2z" fill="#7A5A08"/></svg>',
+    doc: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#333"/><path d="M20 2v6h6" fill="#ddd" stroke="#333"/><path d="M9 12h14M9 15h14M9 18h14M9 21h10M9 24h12" stroke="#3A2F9E"/></svg>',
+    txt: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#333"/><path d="M20 2v6h6" fill="#ddd" stroke="#333"/><path d="M9 12h14M9 15h12M9 18h14M9 21h9M9 24h13" stroke="#777"/></svg>',
+    exe: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M2 5h28v22H2z" fill="#C3C3C3" stroke="#222"/><path d="M3 6h26v4H3z" fill="#3A2F9E"/><circle cx="16" cy="18.5" r="4.5" fill="#8B7CFF"/><ellipse cx="16" cy="18.5" rx="10" ry="3" transform="rotate(-20 16 18.5)" fill="none" stroke="#FF7A3D" stroke-width="1.6"/></svg>',
+    pc: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M4 4h24v18H4z" fill="#C3C3C3" stroke="#222"/><path d="M7 7h18v12H7z" fill="#127A78"/><circle cx="16" cy="13" r="3" fill="#fff"/><path d="M11 22h10v3H11zM7 25h18v3H7z" fill="#C3C3C3" stroke="#222"/></svg>',
+    bin: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M8 9h16l-2 20H10z" fill="#D9D9D9" stroke="#333"/><path d="M6 6h20v3H6z" fill="#BDBDBD" stroke="#333"/><path d="M13 3h6v3h-6z" fill="#BDBDBD" stroke="#333"/><path d="M12 12v14M16 12v14M20 12v14" stroke="#888"/></svg>',
+    tg: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#2AA3DF"/><path d="M8 15.5l15-6-2.5 13-4.5-3.3-2.4 2.3.3-3.7 6-5.6-7.6 4.6z" fill="#fff"/></svg>',
+    chart: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M6 2h14l6 6v22H6z" fill="#fff" stroke="#333"/><path d="M20 2v6h6" fill="#ddd" stroke="#333"/><path d="M10 24h3v-5h-3zM15 24h3v-9h-3zM20 24h3v-13h-3z" fill="#FF7A3D"/></svg>',
+    warn: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M16 3l14 26H2z" fill="#F4CC4A" stroke="#222"/><path d="M15 12h2v9h-2zM15 23h2v2h-2z" fill="#222"/></svg>',
+    logo: '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="5" fill="#3A2F9E"/><ellipse cx="13" cy="13" rx="11.5" ry="4.5" transform="rotate(-24 13 13)" fill="none" stroke="#FF7A3D" stroke-width="2"/></svg>'
+  };
+
+  // ---------- content ----------
+  var I = {
+    welcome:{ title:'Welcome to AURA OS', label:'Welcome.exe', icon:'exe', w:540, html:
+      '<h1>AURA</h1><p class="tag">The energy layer of modern growth.</p>'+
+      '<p><b>Escape velocity for subscription SaaS.</b> Senior operators who have owned the numbers in-house, now running acquisition, monetization and retention for subscription products.</p>'+
+      ctaRow()+
+      '<p class="hint">Tip: double-click the icons on the desktop to look around. On a phone, one tap is enough.</p>' },
+
+    about:{ title:'About AURA.txt', label:'About AURA.txt', icon:'txt', w:520, html:
+      '<h2>Designed by consultants, built by traders.</h2>'+
+      '<p>Senior in-house growth experience inside venture-backed companies. We\'ve owned the metrics we\'re now coming to fix.</p>'+
+      '<p>Our team averages 10+ years scaling venture-backed companies across logistics, delivery, dating, fintech, payments and health-tech. With 10+ growth projects delivered, we bring operator-level expertise in performance acquisition, monetization, retention and scalable growth systems.</p>'+
+      '<p class="hint">See System Properties for the numbers.</p>' },
+
+    sys:{ title:'System Properties', label:'AURA PC', icon:'pc', w:480, html:
+      '<div class="sys"><div>'+ICONS.pc.replace('<svg','<svg width="64" height="64"')+'</div><div>'+
+      '<dl class="kv"><dt>System</dt><dd>AURA OS</dd><dt>Registered to</dt><dd>Subscription SaaS</dd><dt>Mode</dt><dd>Product and growth partner</dd></dl>'+
+      '<div class="stats"><div><b>15+</b><span>Years leading growth in-house</span></div><div><b>$50M+</b><span>Paid spend managed in-house</span></div><div><b>2.75</b><span>Average LTV/CAC lift in engagements</span></div><div><b>20+</b><span>Companies scaled past key milestones</span></div></div>'+
+      '</div></div>' },
+
+    rules:{ title:'Our rules.txt', label:'Our rules.txt', icon:'txt', w:520, html:
+      '<h2>How we think about growth</h2><p>Four rules we don\'t break, whatever the size of your MRR.</p>'+
+      '<h3>Test before scale</h3><p>A disciplined experiment cadence. We pick 2 to 3 channels, run real tests and kill what fails fast. No spray-and-pray budgets.</p>'+
+      '<h3>Economics led</h3><p>We start with unit economics, not media plans. If the LTV/CAC math doesn\'t work, we tell you before you spend a dollar.</p>'+
+      '<h3>Accelerating growth</h3><p>We scale what proves traction. Fast iteration across creatives, funnels and channels turns early signals into repeatable growth.</p>'+
+      '<h3>Aligned on outcomes</h3><p>A base fee covers the team. The upside comes from a share of the incremental revenue we create, measured against a cohort baseline.</p>' },
+
+    method:{ title:'Method', label:'Method', icon:'folder', type:'folder', w:560, path:'AURA:\\Method', children:['s1','s2','s3','s4','s5'],
+      note:'A 5-stage operating system for paid growth' },
+    s1:{ title:'1 Growth Foundation.doc', label:'1 Growth Foundation.doc', icon:'doc', w:560, html:
+      '<h2>Stage 1. Growth Foundation</h2><p><b>Decide if scaling makes sense before spending.</b> 2 to 3 weeks, clear scope, ends with a written Go / No-Go recommendation.</p>'+
+      '<h3>What we do</h3><ul><li>Unit economics audit: CAC by channel, ARPU, contribution margin, LTV proxy, cohort payback</li><li>ICP and messaging audit: who actually pays, JTBD mapping, 3 to 5 angles ready for testing</li><li>Funnel teardown: the full path from impression to paid retention, with drop-off at every step</li><li>Tracking and attribution review: GA4, AppsFlyer, server-side events, conversion APIs</li></ul>'+
+      '<h3>You get</h3><ul><li>Growth audit deck (15 to 25 slides)</li><li>North Star Metric and KPI tree</li><li>Prioritized experiment backlog (4 to 6 weeks)</li><li>Live dashboard, CEO view, daily refresh</li><li>Written Go / No-Go recommendation</li></ul>' },
+    s2:{ title:'2 Acquisition Engine.doc', label:'2 Acquisition Engine.doc', icon:'doc', w:500, html:
+      '<h2>Stage 2. Acquisition Engine</h2><ul><li>2 to 3 channels, not 7. A disciplined test plan.</li><li>Creative factory: 5 to 8 angles per cycle.</li><li>Landing page and offer A/B testing.</li><li>Daily media buying with an experiment log.</li></ul>' },
+    s3:{ title:'3 Data Infrastructure.doc', label:'3 Data Infrastructure.doc', icon:'doc', w:500, html:
+      '<h2>Stage 3. Analytics and Data Infrastructure</h2><ul><li>Event tracking plan and activation definition.</li><li>Experiment measurement standards.</li><li>Cohort retention dashboards (D1, D7, D30).</li><li>Finance model: LTV, payback, scaling forecast.</li></ul>' },
+    s4:{ title:'4 Product-Growth Loop.doc', label:'4 Product-Growth Loop.doc', icon:'doc', w:500, html:
+      '<h2>Stage 4. Product-Growth Loop</h2><ul><li>Onboarding: shorten time-to-value.</li><li>Retention loops: email, push, in-app, referral.</li><li>Pricing tests, trial length, upsell logic.</li><li>Lightweight customer research (10 to 15 interviews).</li></ul>' },
+    s5:{ title:'5 Scale Strategy.doc', label:'5 Scale Strategy.doc', icon:'doc', w:500, html:
+      '<h2>Stage 5. Scale Strategy</h2><ul><li>Scaling playbook: stop/go rules, creative refresh cadence.</li><li>Hiring plan: which roles to bring in-house, and when.</li><li>Geo expansion: testing framework, localization, pricing.</li><li>Investor-ready metrics pack for the next round.</li></ul>' },
+
+    engage:{ title:'Ways to work', label:'Ways to work', icon:'folder', type:'folder', w:480, path:'AURA:\\Ways to work', children:['e1','e2','e3'],
+      note:'Three ways to work with AURA' },
+    e1:{ title:'Growth Diagnostic.doc', label:'Growth Diagnostic.doc', icon:'doc', w:460, html:
+      '<h2>Growth Diagnostic</h2><dl class="kv"><dt>When</dt><dd>You\'re unsure if paid scale is viable.</dd><dt>Scope</dt><dd>Stage 1. Audit and Go / No-Go.</dd><dt>Commitment</dt><dd>2 to 3 weeks</dd><dt>Model</dt><dd>Fixed-scope engagement</dd></dl>'+ctaRow() },
+    e2:{ title:'Growth Partnership.doc', label:'Growth Partnership.doc', icon:'doc', w:460, html:
+      '<h2>Growth Partnership</h2><dl class="kv"><dt>When</dt><dd>You have signal and want to scale without burning cash.</dd><dt>Scope</dt><dd>Stages 1 to 4. The full operating engine.</dd><dt>Commitment</dt><dd>6 months minimum</dd><dt>Model</dt><dd>Base fee plus a share of incremental revenue</dd></dl>'+ctaRow() },
+    e3:{ title:'Scale Sprint.doc', label:'Scale Sprint.doc', icon:'doc', w:460, html:
+      '<h2>Scale Sprint</h2><dl class="kv"><dt>When</dt><dd>You\'re growing and need new geos, channels or fundraising prep.</dd><dt>Scope</dt><dd>Stage 5 plus selective ops support.</dd><dt>Commitment</dt><dd>3 months</dd><dt>Model</dt><dd>Base fee plus an outcome bonus</dd></dl>'+ctaRow() },
+
+    model:{ title:'Commercial model.txt', label:'Commercial model.txt', icon:'txt', w:520, html:
+      '<h2>Why performance-based, and how it actually works</h2><p><b>You pay:</b> a base fee plus a percentage of incremental revenue.</p>'+
+      '<h3>Base fee</h3><p>Covers our team: strategy lead, media buyer, creative producer and analyst. Senior operators every week, not junior account managers.</p>'+
+      '<h3>Incremental, not total</h3><p>Our share is calculated only on revenue above your cohort baseline, so we earn on growth we create, not on what you\'d make anyway.</p>'+
+      '<h3>Cap and floor</h3><p>The variable share is capped, so there are no surprise bills, and floored, so the work keeps fair value if numbers stall for reasons outside our control. Both sides are protected.</p>' },
+
+    cases:{ title:'Cases', label:'Cases', icon:'folder', type:'folder', w:480, path:'AURA:\\Cases', children:['c1','c2','c3'],
+      note:'Products we\'ve helped leave the atmosphere' },
+    c1:{ title:'Worksection.xls', label:'Worksection.xls', icon:'chart', w:440, html:
+      '<h2>Worksection</h2><p>Product growth</p><p class="big">+22% trial-to-paid</p><ul><li>Improved activation rate by 41%</li><li>Lowered customer acquisition cost by 19%</li><li>Built a scalable growth framework</li></ul>' },
+    c2:{ title:'Flirtu.xls', label:'Flirtu.xls', icon:'chart', w:440, html:
+      '<h2>Flirtu</h2><p>Growth and scale</p><p class="big">+42% ROAS</p><ul><li>Expanded into 3 new markets</li><li>Reduced CAC by 28%</li><li>Built a repeatable acquisition engine</li></ul>' },
+    c3:{ title:'Culinara.xls', label:'Culinara.xls', icon:'chart', w:440, html:
+      '<h2>Culinara</h2><p>Investment readiness</p><p class="big">Investment-ready</p><ul><li>Investment-ready business model</li><li>Clear CAC/LTV framework</li><li>Prioritized go-to-market strategy</li><li>Reduced investment uncertainty</li></ul>' },
+
+    audit:{ title:'Free growth audit.exe', label:'Free growth audit.exe', icon:'exe', w:460, html:
+      '<h2>Start with a free growth audit call.</h2><p>60 minutes. We look at your funnel, ask the hard questions and leave you with 3 things to change. Zero commitment.</p>'+
+      '<div class="actions">'+cta('Book a free growth audit')+'</div>'+
+      '<p class="hint">Investor or accelerator? <a href="'+TG+'" target="_blank" rel="noopener">Set up a partner call</a> and we\'ll walk you through portfolio benefits and reference clients.</p>' },
+
+    bin:{ title:'Recycle Bin', label:'Recycle Bin', icon:'bin', type:'folder', w:480, path:'Recycle Bin', children:['b1','b2','b3'],
+      note:'Things we threw out so you don\'t pay for them' },
+    b1:{ title:'spray_and_pray_budget.xls', label:'spray_and_pray_budget.xls', icon:'chart', w:420, html:
+      '<div class="warn">'+ICONS.warn+'<div><h2>Deleted on purpose</h2><p>We pick 2 to 3 channels, run real tests and kill what fails fast. This file is not coming back.</p></div></div>' },
+    b2:{ title:'media_plan_before_unit_economics.doc', label:'media_plan_first.doc', icon:'doc', w:420, html:
+      '<div class="warn">'+ICONS.warn+'<div><h2>Deleted on purpose</h2><p>We start with unit economics, not media plans. If LTV/CAC doesn\'t work, you\'ll hear it before you spend a dollar.</p></div></div>' },
+    b3:{ title:'junior_account_manager.lnk', label:'junior_account_manager.lnk', icon:'txt', w:420, html:
+      '<div class="warn">'+ICONS.warn+'<div><h2>Shortcut target not found</h2><p>Senior operators every week: strategy lead, media buyer, creative producer, analyst.</p></div></div>' },
+
+    tg:{ label:'Telegram', icon:'tg', href:TG }
+  };
+  var DESK = ['welcome','sys','about','rules','method','engage','model','cases','audit','tg','bin'];
+
+  // ---------- helpers ----------
+  var desktop = document.getElementById('desktop');
+  var iconsEl = document.getElementById('icons');
+  var tasksEl = document.getElementById('tasks');
+  var touch = window.matchMedia('(hover: none)').matches;
+  var narrow = function(){ return window.innerWidth <= 700; };
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function iconBtn(id){
+    var it = I[id];
+    if (it.href) return '<a class="icon" href="'+it.href+'" target="_blank" rel="noopener" data-id="'+id+'">'+ICONS[it.icon]+'<span class="il">'+it.label+'</span></a>';
+    return '<button class="icon" type="button" data-id="'+id+'">'+ICONS[it.icon]+'<span class="il">'+it.label+'</span></button>';
+  }
+  iconsEl.innerHTML = DESK.map(iconBtn).join('');
+  document.getElementById('startlogo').innerHTML = ICONS.logo;
+  document.getElementById('traytg').href = TG;
+  document.getElementById('traytg').innerHTML = ICONS.tg;
+  document.getElementById('shutcta').href = TG;
+
+  var SVG_MIN = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 8h6v2H1z"/></svg>';
+  var SVG_MAX = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0h10v10H0zM1 2v7h8V2z" fill-rule="evenodd"/></svg>';
+  var SVG_X = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1l8 8M9 1l-8 8" stroke="#000" stroke-width="2"/></svg>';
+
+  // ---------- window manager ----------
+  var wins = {}, z = 20, cascade = 0;
+
+  function openItem(id){
+    var it = I[id]; if (!it) return;
+    if (it.href){ window.open(it.href, '_blank', 'noopener'); return; }
+    if (wins[id]){ restore(id); return; }
+    var w = document.createElement('section');
+    w.className = 'win out'; w.dataset.id = id;
+    w.setAttribute('role','dialog'); w.setAttribute('aria-label', it.title);
+    var head = '<div class="titlebar">'+ICONS[it.icon]+'<span class="tt">'+it.title+'</span>'+
+      '<button class="ctl" data-a="min" aria-label="Minimize">'+SVG_MIN+'</button>'+
+      '<button class="ctl" data-a="max" aria-label="Maximize">'+SVG_MAX+'</button>'+
+      '<button class="ctl" data-a="close" aria-label="Close">'+SVG_X+'</button></div>';
+    var body;
+    if (it.type === 'folder'){
+      body = '<div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>'+
+        '<div class="addr">Address <div class="field in">'+it.path+'</div></div>'+
+        '<div class="body in folder-body">'+it.children.map(iconBtn).join('')+'</div>'+
+        '<div class="status"><span class="in">'+it.children.length+' object(s)</span><span class="in">'+it.note+'</span></div>';
+    } else {
+      body = '<div class="body in doc">'+it.html+'</div>';
+    }
+    w.innerHTML = head + body;
+    var vw = desktop.clientWidth, vh = desktop.clientHeight;
+    var width = Math.min(it.w || 480, vw - 20);
+    w.style.width = width + 'px';
+    var startX = Math.max(230, Math.round((vw - width)/2) - 90);
+    var left = Math.min(startX + cascade*30, Math.max(10, vw - width - 10));
+    var top = Math.min(18 + cascade*26, Math.max(10, vh - 320));
+    w.style.left = left + 'px'; w.style.top = top + 'px';
+    cascade = (cascade + 1) % 7;
+    desktop.appendChild(w);
+    wins[id] = w;
+
+    var tb = document.createElement('button');
+    tb.className = 'btn task'; tb.type = 'button'; tb.dataset.id = id;
+    tb.innerHTML = ICONS[it.icon] + '<span>' + it.title + '</span>';
+    tb.addEventListener('click', function(){
+      if (!w.hidden && w.classList.contains('active')) minimize(id); else restore(id);
+    });
+    tasksEl.appendChild(tb);
+
+    w.addEventListener('pointerdown', function(){ focusWin(id); });
+    w.querySelectorAll('.ctl').forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        var a = b.dataset.a;
+        if (a === 'min') minimize(id);
+        else if (a === 'max') w.classList.toggle('max');
+        else closeWin(id);
+      });
+    });
+    drag(w, w.querySelector('.titlebar'));
+    w.querySelector('.titlebar').addEventListener('dblclick', function(e){ if (!e.target.closest('.ctl') && !narrow()) w.classList.toggle('max'); });
+    focusWin(id);
+  }
+
+  function focusWin(id){
+    Object.keys(wins).forEach(function(k){ wins[k].classList.remove('active'); });
+    tasksEl.querySelectorAll('.task').forEach(function(t){ t.classList.toggle('pressed', t.dataset.id === id); });
+    var w = wins[id]; if (!w) return;
+    w.hidden = false; w.classList.add('active'); w.style.zIndex = ++z;
+  }
+  function minimize(id){
+    var w = wins[id]; w.hidden = true; w.classList.remove('active');
+    var t = tasksEl.querySelector('.task[data-id="'+id+'"]'); if (t) t.classList.remove('pressed');
+  }
+  function restore(id){ focusWin(id); }
+  function closeWin(id){
+    var w = wins[id]; if (!w) return;
+    w.remove(); delete wins[id];
+    var t = tasksEl.querySelector('.task[data-id="'+id+'"]'); if (t) t.remove();
+    var rest = Object.keys(wins).filter(function(k){ return !wins[k].hidden; });
+    if (rest.length){ rest.sort(function(a,b){ return wins[b].style.zIndex - wins[a].style.zIndex; }); focusWin(rest[0]); }
+  }
+
+  function drag(w, handle){
+    var sx, sy, ox, oy, on = false;
+    handle.addEventListener('pointerdown', function(e){
+      if (e.target.closest('.ctl') || narrow() || w.classList.contains('max')) return;
+      on = true; sx = e.clientX; sy = e.clientY; ox = w.offsetLeft; oy = w.offsetTop;
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener('pointermove', function(e){
+      if (!on) return;
+      var nx = ox + e.clientX - sx, ny = oy + e.clientY - sy;
+      nx = Math.max(-w.offsetWidth + 80, Math.min(desktop.clientWidth - 80, nx));
+      ny = Math.max(0, Math.min(desktop.clientHeight - 30, ny));
+      w.style.left = nx + 'px'; w.style.top = ny + 'px';
+    });
+    var end = function(){ on = false; };
+    handle.addEventListener('pointerup', end);
+    handle.addEventListener('pointercancel', end);
+  }
+
+  // ---------- icon selection / opening ----------
+  function select(el){
+    document.querySelectorAll('.icon.sel').forEach(function(x){ x.classList.remove('sel'); });
+    if (el) el.classList.add('sel');
+  }
+  document.addEventListener('click', function(e){
+    var ic = e.target.closest('.icon');
+    if (ic){
+      if (ic.tagName === 'A'){ select(ic); return; } // links open natively
+      e.preventDefault();
+      if (touch || e.detail === 0) { openItem(ic.dataset.id); select(null); }
+      else select(ic);
+      return;
+    }
+    if (!e.target.closest('.startmenu') && !e.target.closest('#startbtn')) closeStart();
+    if (e.target === desktop || e.target.closest('.wallpaper') || e.target === iconsEl) select(null);
+  });
+  document.addEventListener('dblclick', function(e){
+    var ic = e.target.closest('button.icon');
+    if (ic){ openItem(ic.dataset.id); select(null); }
+  });
+
+  // ---------- start menu ----------
+  var sm = document.getElementById('startmenu'), sb = document.getElementById('startbtn');
+  var startItems = [['welcome','Welcome'],['sys','System Properties'],['method','Method'],['engage','Ways to work'],['cases','Cases'],['model','Commercial model']];
+  document.getElementById('startlist').innerHTML =
+    startItems.map(function(s){ return '<li><button type="button" data-open="'+s[0]+'">'+ICONS[I[s[0]].icon]+s[1]+'</button></li>'; }).join('') +
+    '<li><hr></li><li><a href="'+TG+'" target="_blank" rel="noopener">'+ICONS.tg+'Book a free growth audit</a></li>'+
+    '<li><hr></li><li><button type="button" id="shutbtn">'+ICONS.pc+'Shut down...</button></li>';
+  function closeStart(){ sm.hidden = true; sb.classList.remove('pressed'); sb.setAttribute('aria-expanded','false'); }
+  sb.addEventListener('click', function(){
+    var open = sm.hidden; sm.hidden = !open; sb.classList.toggle('pressed', open); sb.setAttribute('aria-expanded', String(open));
+    if (open){ var f = sm.querySelector('button, a'); if (f) f.focus(); }
+  });
+  sm.addEventListener('click', function(e){
+    var b = e.target.closest('[data-open]');
+    if (b){ openItem(b.dataset.open); closeStart(); }
+    if (e.target.closest('a')) closeStart();
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ closeStart(); } });
+
+  // ---------- shutdown ----------
+  var sd = document.getElementById('shutdown');
+  document.getElementById('shutbtn').addEventListener('click', function(){ closeStart(); sd.hidden = false; document.getElementById('shutcta').focus(); });
+  document.getElementById('restart').addEventListener('click', function(){
+    sd.hidden = true; Object.keys(wins).forEach(closeWin); boot();
+  });
+
+  // ---------- clock ----------
+  var clock = document.getElementById('clock');
+  function tick(){ var d = new Date(); clock.textContent = d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); }
+  tick(); setInterval(tick, 15000);
+
+  // ---------- boot ----------
+  var bootEl = document.getElementById('boot');
+  function boot(){
+    bootEl.hidden = false; bootEl.classList.remove('go');
+    var done = false;
+    var finish = function(){ if (done) return; done = true; bootEl.hidden = true; openItem('welcome'); };
+    if (reduced){ finish(); return; }
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ bootEl.classList.add('go'); }); });
+    setTimeout(finish, 1700);
+    bootEl.onclick = finish;
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
